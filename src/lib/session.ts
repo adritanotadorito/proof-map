@@ -22,12 +22,27 @@ export type SelectedRepo = {
   selectedAt: string;
 };
 
+/** The exact change under review. Everything shown later is read at these two SHAs. */
+export type PinnedTarget = {
+  kind: "branch" | "pr";
+  /** Branch name, or the pull request's head branch name. */
+  ref: string;
+  prNumber: number | null;
+  prTitle: string | null;
+  baseSha: string;
+  headSha: string;
+  /** How the base was chosen, in plain words, shown to the reviewer. */
+  baseRule: string;
+  pinnedAt: string;
+};
+
 export type Session = {
   user: { id: number; login: string; name: string | null };
   accessToken: string;
   /** Epoch milliseconds. GitHub App user tokens expire (8 hours by default). */
   expiresAt: number;
   selectedRepo: SelectedRepo | null;
+  target: PinnedTarget | null;
 };
 
 function key(): Buffer {
@@ -38,7 +53,7 @@ function key(): Buffer {
   return createHash("sha256").update(secret).digest();
 }
 
-export function seal(session: Session): string {
+export function seal(session: unknown): string {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", key(), iv);
   const body = Buffer.concat([
@@ -48,7 +63,7 @@ export function seal(session: Session): string {
   return Buffer.concat([iv, cipher.getAuthTag(), body]).toString("base64url");
 }
 
-export function unseal(value: string): Session | null {
+export function unsealJson<T>(value: string): T | null {
   try {
     const raw = Buffer.from(value, "base64url");
     const decipher = createDecipheriv("aes-256-gcm", key(), raw.subarray(0, 12));
@@ -57,13 +72,18 @@ export function unseal(value: string): Session | null {
       decipher.update(raw.subarray(28)),
       decipher.final(),
     ]).toString("utf8");
-    const session = JSON.parse(json) as Session;
-    if (!session.accessToken || session.expiresAt <= Date.now()) return null;
-    return session;
+    return JSON.parse(json) as T;
   } catch {
     // Tampered, truncated, or encrypted with a different secret.
     return null;
   }
+}
+
+export function unseal(value: string): Session | null {
+  const session = unsealJson<Session>(value);
+  if (!session?.accessToken || session.expiresAt <= Date.now()) return null;
+  // Sessions created before a field existed simply lack it.
+  return { ...session, selectedRepo: session.selectedRepo ?? null, target: session.target ?? null };
 }
 
 export const cookieOptions = {

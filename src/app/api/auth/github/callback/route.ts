@@ -39,6 +39,7 @@ export async function GET(request: Request) {
       expiresAt: token.expiresAt,
       // Keep the chosen repository only if the same person signed in again.
       selectedRepo: previous?.user.id === user.id ? previous.selectedRepo : null,
+      target: previous?.user.id === user.id ? previous.target : null,
     });
   } catch (error) {
     console.error("GitHub sign-in failed:", error instanceof Error ? error.message : error);

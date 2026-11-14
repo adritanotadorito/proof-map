@@ -16,7 +16,7 @@ const errorMessages: Record<string, string> = {
 };
 
 const primaryButton =
-  "inline-flex h-12 items-center rounded-full bg-foreground px-6 text-sm font-medium text-background hover:opacity-90";
+  "btn btn-primary btn-lg";
 
 async function SignIn({ searchParams }: { searchParams: SearchParams }) {
   const { error } = await searchParams;
@@ -27,7 +27,7 @@ async function SignIn({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div className="mt-10">
       {message && (
-        <p role="alert" className="mb-5 max-w-2xl rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm">
+        <p role="alert" className="mb-5 max-w-2xl flash flash-danger">
           {message}
         </p>
       )}
@@ -37,7 +37,7 @@ async function SignIn({ searchParams }: { searchParams: SearchParams }) {
             <Link href="/repos" className={primaryButton}>
               Choose a repository
             </Link>
-            <span className="text-sm text-foreground/60">
+            <span className="text-sm text-muted">
               Signed in as @{session.user.login}
               {session.selectedRepo ? ` · ${session.selectedRepo.fullName} selected` : ""}
             </span>
@@ -49,7 +49,7 @@ async function SignIn({ searchParams }: { searchParams: SearchParams }) {
               Continue with GitHub
             </a>
             {!configured && (
-              <span className="text-sm text-foreground/50">GitHub App not configured yet.</span>
+              <span className="text-sm text-muted">GitHub App not configured yet.</span>
             )}
           </>
         )}
@@ -76,23 +76,15 @@ const steps = [
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
-        <span className="font-mono text-sm font-semibold tracking-tight">
-          ProofMap
-        </span>
-        <span className="rounded-full border border-foreground/15 px-3 py-1 text-xs text-foreground/60">
-          Reference implementation
-        </span>
-      </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-16">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">
+      <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col justify-center px-4 py-12 sm:px-6 sm:py-16">
+        <p className="eyebrow text-brand">
           Earned trust in AI code
         </p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+        <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
           AI reviews. Humans stay accountable.
         </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-foreground/70">
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
           ProofMap turns an agent-written change into evidence a person can
           check and own: what changed, what was verified, and what the reviewer
           refused to decide.
@@ -102,17 +94,17 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
           <SignIn searchParams={searchParams} />
         </Suspense>
 
-        <ol className="mt-20 grid gap-4 sm:grid-cols-3">
+        <ol className="mt-14 grid gap-4 sm:grid-cols-3">
           {steps.map((step, i) => (
             <li
               key={step.title}
-              className="rounded-2xl border border-foreground/10 p-6"
+              className="box p-5"
             >
-              <span className="font-mono text-xs text-accent">
+              <span className="font-mono text-xs text-brand">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <h2 className="mt-3 text-base font-semibold">{step.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-foreground/65">
+              <p className="mt-2 text-sm leading-6 text-muted">
                 {step.body}
               </p>
             </li>
@@ -120,7 +112,7 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
         </ol>
       </main>
 
-      <footer className="mx-auto w-full max-w-5xl px-6 py-8 text-xs text-foreground/45">
+      <footer className="mx-auto w-full max-w-[1280px] px-4 py-6 text-xs text-muted sm:px-6">
         Built for Junction 2026 · Tieto challenge
       </footer>
     </div>
