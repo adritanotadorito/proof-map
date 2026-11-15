@@ -81,7 +81,7 @@ const severityTone = { high: "pill-danger", medium: "pill-attention", low: "" } 
 
 const itemBox = "min-w-0 rounded-md border border-line px-4 py-3";
 
-/** The two-sentence explanation and the suggested next action. */
+/** The two-sentence briefing (what changed, next step), then one more sentence of detail. */
 export function ReviewLead({ review, stale, requirementChanged }: { review: ReviewRecord; stale: boolean; requirementChanged: boolean }) {
   return (
     <div data-testid="lead">
@@ -99,15 +99,21 @@ export function ReviewLead({ review, stale, requirementChanged }: { review: Revi
         </p>
       )}
       <div className="px-4 py-4">
-        <p className="text-base leading-7">
-          <span data-testid="lead-1">{review.explanation[0]}</span>{" "}
-          <span data-testid="lead-2">{review.explanation[1]}</span>
-        </p>
-        <p className="mt-3 text-sm">
-          <span className="eyebrow">Suggested next step</span>
-          <span className="mt-0.5 block font-medium" data-testid="next-action">
-            {review.nextAction}
-          </span>
+        {/* The briefing is two sentences: what changed, then the next step. Everything else sits below it. */}
+        <div className="grid gap-2 text-base leading-7">
+          <p>
+            <span className="eyebrow mr-2">What changed</span>
+            <span data-testid="lead-1">{review.explanation[0]}</span>
+          </p>
+          <p>
+            <span className="eyebrow mr-2">Next step</span>
+            <span className="font-medium" data-testid="next-action">
+              {review.nextAction}
+            </span>
+          </p>
+        </div>
+        <p className="mt-3 text-[13px] text-muted">
+          <span className="font-semibold">More detail:</span> <span data-testid="lead-2">{review.explanation[1]}</span>
         </p>
         <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           <span className="pill pill-done">AI claim</span>
