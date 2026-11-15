@@ -2,70 +2,68 @@ import Link from "next/link";
 import { signOut } from "@/app/actions";
 import { getGitHubConfig } from "@/lib/github";
 import { getSession, type Session } from "@/lib/session";
-import { BranchIcon, ProofMapMark, RepoIcon } from "./icons";
+import { ChevronIcon, ProofMapMark } from "./icons";
+import { Breadcrumb, SectionNav } from "./top-nav";
+
+/** A signed-in person's GitHub avatar, addressed by their numeric GitHub ID. */
+export function Avatar({ userId, size, className }: { userId: number; size: number; className?: string }) {
+  return (
+    <span className={`avatar ${className ?? ""}`} style={{ width: size, height: size }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`https://avatars.githubusercontent.com/u/${userId}?s=${size * 2}&v=4`} alt="" width={size} height={size} />
+    </span>
+  );
+}
 
 /** The bar itself, free of data fetching so it can be rendered with any session. */
 export function TopBarView({ session }: { session: Session | null }) {
-  const repo = session?.selectedRepo ?? null;
-  const target = session?.target ?? null;
+  const nav = session
+    ? {
+        login: session.user.login,
+        repo: session.selectedRepo ? { fullName: session.selectedRepo.fullName, private: session.selectedRepo.private } : null,
+        hasTarget: Boolean(session.target),
+      }
+    : null;
   return (
-    <header className="border-b border-line bg-surface">
-      <div className="mx-auto flex min-h-14 w-full max-w-[1280px] flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold">
-          <ProofMapMark className="text-brand" />
-          ProofMap
+    <header className="border-b border-line bg-inset">
+      <div className="topbar-inner mx-auto flex h-[54px] w-full max-w-[1280px] items-center gap-4 px-4 sm:px-6">
+        <Link href="/" className="flex shrink-0 items-center gap-3 text-base font-semibold">
+          <ProofMapMark size={28} />
+          <span className={nav ? "sr-only" : undefined}>ProofMap</span>
         </Link>
 
-        {session && (
-          <nav aria-label="Current selection" className="order-last flex min-w-0 basis-full items-center gap-1.5 text-sm sm:order-none sm:flex-1 sm:basis-0">
-            <span className="hidden text-muted sm:inline">/</span>
-            {repo ? (
-              <Link href="/repos" className="flex min-w-0 items-center gap-1.5 hover:underline" title="Change repository">
-                <RepoIcon className="shrink-0 text-muted" />
-                <span className="truncate">{repo.fullName}</span>
-              </Link>
-            ) : (
-              <Link href="/repos" className="link">
-                Choose a repository
-              </Link>
-            )}
-            {repo && (
-              <>
-                <span className="text-muted">/</span>
-                {target ? (
-                  <Link href="/target" className="flex min-w-0 items-center gap-1.5 hover:underline" title="Change branch or pull request">
-                    <BranchIcon className="shrink-0 text-muted" />
-                    <span className="truncate font-mono text-xs">
-                      {target.kind === "pr" ? `#${target.prNumber} ${target.ref}` : target.ref}
-                    </span>
-                  </Link>
-                ) : (
-                  <Link href="/target" className="link whitespace-nowrap">
-                    Choose a change
-                  </Link>
-                )}
-              </>
-            )}
-          </nav>
-        )}
+        {nav && <Breadcrumb {...nav} />}
 
         <div className="ml-auto flex shrink-0 items-center gap-3 text-sm">
           {session ? (
-            <>
-              <span className="hidden text-muted sm:inline" title={`GitHub user ID ${session.user.id}`}>
-                @{session.user.login}
-              </span>
-              <form action={signOut}>
-                <button type="submit" className="btn btn-sm">
-                  Sign out
-                </button>
-              </form>
-            </>
+            <details className="relative">
+              <summary
+                className="flex cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden"
+                aria-label={`Account menu for @${session.user.login}`}
+              >
+                <Avatar userId={session.user.id} size={32} />
+                <ChevronIcon className="text-muted" />
+              </summary>
+              <div className="box absolute right-0 z-20 mt-2 w-56 p-2 shadow-lg shadow-black/40">
+                <p className="px-2 py-1.5 text-[13px] text-muted">
+                  Signed in as <span className="font-semibold text-foreground">@{session.user.login}</span>
+                  <span className="block text-xs">GitHub user ID {session.user.id}</span>
+                </p>
+                <form action={signOut} className="mt-1 border-t border-line pt-2">
+                  <button type="submit" className="tree-item">
+                    Sign out
+                  </button>
+                </form>
+              </div>
+            </details>
           ) : (
-            <span className="pill">Reference implementation</span>
+            <a href="/api/auth/github/login" className="btn bg-transparent px-3.5 font-medium">
+              Sign in
+            </a>
           )}
         </div>
       </div>
+      {nav && <SectionNav {...nav} />}
     </header>
   );
 }

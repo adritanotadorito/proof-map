@@ -32,7 +32,7 @@ function Citation({ c }: { c: CheckedCitation }) {
       ? "requirement"
       : `${c.path}:${c.lineStart}${c.lineEnd !== c.lineStart ? `-${c.lineEnd}` : ""}`;
   return (
-    <li className="text-xs">
+    <li className="min-w-0 text-xs">
       {c.valid ? (
         <>
           <span className="pill pill-brand">{sourceWord[c.sourceType]}</span>{" "}
@@ -79,7 +79,7 @@ const coverageWord = {
 const coverageTone = { addresses: "", "partially-addresses": "pill-attention", "does-not-address": "pill-danger", unclear: "pill-attention" } as const;
 const severityTone = { high: "pill-danger", medium: "pill-attention", low: "" } as const;
 
-const itemBox = "rounded-md border border-line px-4 py-3";
+const itemBox = "min-w-0 rounded-md border border-line px-4 py-3";
 
 /** The two-sentence explanation and the suggested next action. */
 export function ReviewLead({ review, stale, requirementChanged }: { review: ReviewRecord; stale: boolean; requirementChanged: boolean }) {
@@ -123,7 +123,7 @@ export function ReviewLead({ review, stale, requirementChanged }: { review: Revi
 
 export function ReviewCoverage({ review }: { review: ReviewRecord }) {
   return (
-    <ul className="grid gap-3 px-4 py-4" data-testid="coverage">
+    <ul className="grid grid-cols-1 gap-3 px-4 py-4" data-testid="coverage">
       {review.claims.length === 0 && <li className="text-sm text-muted">The model made no coverage claims.</li>}
       {review.claims.map((c) => (
         <li key={c.id} className={itemBox} data-claim={c.id}>
@@ -135,7 +135,7 @@ export function ReviewCoverage({ review }: { review: ReviewRecord }) {
             <NotExecuted />
           </p>
           <p className="mt-2 text-[13px] text-muted">{c.reason}</p>
-          <ul className="mt-2 grid gap-1.5">
+          <ul className="mt-2 grid grid-cols-1 gap-1.5">
             {c.citations.map((cit, i) => (
               <Citation key={i} c={cit} />
             ))}
@@ -155,7 +155,7 @@ export function ReviewFindings({ review }: { review: ReviewRecord }) {
     );
   }
   return (
-    <ul className="grid gap-3 px-4 py-4" data-testid="findings">
+    <ul className="grid grid-cols-1 gap-3 px-4 py-4" data-testid="findings">
       {review.findings.map((f) => (
         <li key={f.id} className={itemBox}>
           <p className="text-sm font-medium">{f.title}</p>
@@ -172,7 +172,7 @@ export function ReviewFindings({ review }: { review: ReviewRecord }) {
           <p className="mt-1 text-[13px]">
             <span className="text-muted">What to do:</span> {f.humanAction}
           </p>
-          <ul className="mt-2 grid gap-1.5">
+          <ul className="mt-2 grid grid-cols-1 gap-1.5">
             {f.citations.map((cit, i) => (
               <Citation key={i} c={cit} />
             ))}
@@ -185,7 +185,7 @@ export function ReviewFindings({ review }: { review: ReviewRecord }) {
 
 export function ReviewUnknowns({ review }: { review: ReviewRecord }) {
   return (
-    <ul className="grid gap-3 px-4 py-4" data-testid="unknowns">
+    <ul className="grid grid-cols-1 gap-3 px-4 py-4" data-testid="unknowns">
       {review.unknowns.map((u) => (
         <li key={u.question} className={`${itemBox} text-[13px]`}>
           <p className="text-sm font-medium">{u.question}</p>
@@ -270,7 +270,7 @@ export function ReviewRecordDetails({ review }: { review: ReviewRecord }) {
     <div data-testid="record">
       <div className="px-4 py-4">
         <h3 className="text-sm font-semibold">Checks</h3>
-        <ul className="mt-2 grid gap-2 text-[13px]">
+        <ul className="mt-2 grid grid-cols-1 gap-2 text-[13px]">
           {review.checks.map((c) => (
             <li key={c.id} className="flex flex-wrap items-start gap-2">
               <span className={`pill shrink-0 ${c.result === "pass" ? "pill-success" : c.result === "fail" ? "pill-danger" : "pill-pending"}`}>

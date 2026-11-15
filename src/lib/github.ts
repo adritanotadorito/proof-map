@@ -21,8 +21,17 @@ export function getGitHubConfig(): GitHubConfig | null {
     clientId,
     clientSecret,
     slug,
-    appUrl: (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, ""),
+    appUrl: appUrl(),
   };
+}
+
+/** APP_URL wins; on Vercel the production domain is the fallback; localhost only in development. */
+function appUrl(): string {
+  const explicit = process.env.APP_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercel) return `https://${vercel}`;
+  return "http://localhost:3000";
 }
 
 export function callbackUrl(config: GitHubConfig): string {
@@ -144,6 +153,12 @@ export type Repo = {
   private: boolean;
   defaultBranch: string;
   description: string | null;
+  language: string | null;
+  stars: number;
+  fork: boolean;
+  /** Last push, as GitHub reports it. */
+  pushedAt: string | null;
+  ownerId: number;
 };
 
 /**
@@ -163,6 +178,11 @@ export async function listInstallationRepos(token: string, installationId: numbe
         private: boolean;
         default_branch: string;
         description: string | null;
+        language: string | null;
+        stargazers_count: number;
+        fork: boolean;
+        pushed_at: string | null;
+        owner: { id: number };
       }[];
     }>(token, `/user/installations/${installationId}/repositories?per_page=100&page=${page}`);
     for (const r of data.repositories) {
@@ -173,6 +193,11 @@ export async function listInstallationRepos(token: string, installationId: numbe
         private: r.private,
         defaultBranch: r.default_branch,
         description: r.description,
+        language: r.language,
+        stars: r.stargazers_count,
+        fork: r.fork,
+        pushedAt: r.pushed_at,
+        ownerId: r.owner.id,
       });
     }
     if (repos.length >= data.total_count || data.repositories.length === 0) break;

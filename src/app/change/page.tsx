@@ -35,6 +35,7 @@ async function Change({ searchParams }: { searchParams: SearchParams }) {
   return (
     <ChangeView
       userLogin={session.user.login}
+      userId={session.user.id}
       repo={repo}
       target={target}
       data={data}
